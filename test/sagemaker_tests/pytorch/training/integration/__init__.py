@@ -33,6 +33,7 @@ dist_operations_path = os.path.join(resources_path, 'distributed_operations.py')
 neuron_allreduce_path = os.path.join(resources_path, 'neuron', 'all_reduce')
 neuron_mlp_path = os.path.join(resources_path, 'neuron', 'mlp')
 smdebug_mnist_script = os.path.join(mnist_path, 'smdebug_mnist.py')
+smppy_mnist_script = os.path.join(mnist_path, 'smppy_mnist.py')
 
 mnist_1d_script = os.path.join(mnist_path, 'mnist_1d.py')
 model_cpu_dir = os.path.join(mnist_path, 'model_cpu')
@@ -47,14 +48,14 @@ DEFAULT_TIMEOUT = 40
 
 def get_framework_from_image_uri(image_uri):
     return (
-        "huggingface_tensorflow_trcomp" 
-        if "huggingface-tensorflow-trcomp" in image_uri 
+        "huggingface_tensorflow_trcomp"
+        if "huggingface-tensorflow-trcomp" in image_uri
         else "huggingface_tensorflow"
         if "huggingface-tensorflow" in image_uri
-        else "huggingface_pytorch_trcomp" 
-        if "huggingface-pytorch-trcomp" in image_uri 
-        else "huggingface_pytorch" 
-        if "huggingface-pytorch" in image_uri 
+        else "huggingface_pytorch_trcomp"
+        if "huggingface-pytorch-trcomp" in image_uri
+        else "huggingface_pytorch"
+        if "huggingface-pytorch" in image_uri
         else "mxnet" if "mxnet" in image_uri
         else "pytorch" if "pytorch" in image_uri
         else "tensorflow" if "tensorflow" in image_uri

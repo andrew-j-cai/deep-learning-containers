@@ -160,6 +160,10 @@ def pytest_collection_modifyitems(session, config, items):
 
 # Nightly image fixture dictionary, maps nightly fixtures to set of image labels
 NIGHTLY_FIXTURES = {
+    "feature_smppy_present": {
+        NightlyFeatureLabel.AWS_FRAMEWORK_INSTALLED.value,
+        NightlyFeatureLabel.AWS_SMPPY_INSTALLED.value
+    },
     "feature_smdebug_present": {
         NightlyFeatureLabel.AWS_FRAMEWORK_INSTALLED.value,
         NightlyFeatureLabel.AWS_SMDEBUG_INSTALLED.value
@@ -181,6 +185,10 @@ NIGHTLY_FIXTURES = {
 
 
 # Nightly fixtures
+@pytest.fixture(scope="session")
+def feature_smppy_present():
+    pass
+
 @pytest.fixture(scope="session")
 def feature_smdebug_present():
     pass
@@ -464,7 +472,7 @@ def disable_nightly_test(request):
                     pytest.skip(f"{test_name} will be skipped.")
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(autouse=False)
 def skip_test_successfully_executed_before(request):
     """
     "cache/lastfailed" contains information about failed tests only. We're running SM tests in separate threads for each image.
