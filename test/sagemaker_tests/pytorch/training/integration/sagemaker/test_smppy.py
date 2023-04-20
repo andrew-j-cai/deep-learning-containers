@@ -59,15 +59,22 @@ def test_training_smppy(framework_version, ecr_image, sagemaker_regions):
         )
         s3 = boto3.client("s3")
         bucket = pytorch.output_path.replace("s3://", "").rstrip("/")
-        prefix = _get_detailed_profiler_output_prefix(pytorch)
 
         # Give postprocessing rule some time to complete
         time.sleep(60)
 
-        contents = s3.list_objects_v2(Bucket=bucket, Prefix=prefix).get("Contents")
-        assert len(contents) > 0
-        for file in contents:
+        postproc_contents = s3.list_objects_v2(
+            Bucket=bucket, Prefix=_get_detailed_profiler_output_prefix(pytorch)
+        ).get("Contents")
+        assert len(postproc_contents) > 0
+        for file in postproc_contents:
             assert file.get("Size") > 0
+
+        all_contents = s3.list_objects_v2(
+            Bucket=bucket, Prefix=os.path.join(pytorch.latest_training_job.name, "")
+        ).get("Contents")
+        for file in all_contents:
+            s3.delete_object(Bucket=bucket, Key=file["Key"])
 
 
 def _get_detailed_profiler_output_prefix(estimator):
