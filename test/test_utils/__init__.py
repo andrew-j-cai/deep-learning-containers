@@ -1058,8 +1058,10 @@ def get_canary_default_tag_py3_version(framework, version):
             return "py37"
         if Version("2.6") <= Version(version) < Version("2.8"):
             return "py38"
-        if Version(version) >= Version("2.8"):
+        if Version("2.8") <= Version(version) < Version("2.12"):
             return "py39"
+        if Version(version) >= Version("2.12"):
+            return "py310"
 
     if framework == "mxnet":
         if Version(version) == Version("1.8"):
@@ -1615,7 +1617,12 @@ NEURONX_VERSION_MANIFEST = {
         "tensorflow": {
             "2.10.1": "2.10.1.2.0.0",
         },
-    }
+    },
+    "2.9.1": {
+        "pytorch": {
+            "1.13.0": "1.13.0.1.6.1",
+        }
+    },
 }
 
 

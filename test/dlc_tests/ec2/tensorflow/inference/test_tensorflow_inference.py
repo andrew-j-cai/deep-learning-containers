@@ -1,7 +1,6 @@
 import os
 import re
 from time import sleep
-
 import pytest
 
 import test.test_utils.ec2 as ec2_utils
@@ -19,6 +18,9 @@ TF_EC2_CPU_INSTANCE_TYPE = get_ec2_instance_type(default="c5.4xlarge", processor
 TF_EC2_EIA_ACCELERATOR_TYPE = get_ec2_accelerator_type(default="eia1.large", processor="eia")
 TF_EC2_NEURON_ACCELERATOR_TYPE = get_ec2_instance_type(default="inf1.xlarge", processor="neuron")
 TF_EC2_NEURONX_ACCELERATOR_TYPE = get_ec2_instance_type(default="trn1.2xlarge", processor="neuronx")
+TF_EC2_NEURONX_INF2_ACCELERATOR_TYPE = get_ec2_instance_type(
+    default="inf2.xlarge", processor="neuronx"
+)
 TF_EC2_SINGLE_GPU_INSTANCE_TYPE = get_ec2_instance_type(
     default="p3.2xlarge",
     processor="gpu",
@@ -37,7 +39,11 @@ def test_ec2_tensorflow_inference_neuron(tensorflow_inference_neuron, ec2_connec
 
 
 @pytest.mark.model("mnist")
-@pytest.mark.parametrize("ec2_instance_type", TF_EC2_NEURONX_ACCELERATOR_TYPE, indirect=True)
+@pytest.mark.parametrize(
+    "ec2_instance_type",
+    TF_EC2_NEURONX_ACCELERATOR_TYPE + TF_EC2_NEURONX_INF2_ACCELERATOR_TYPE,
+    indirect=True,
+)
 # FIX ME: Sharing the AMI from neuron account to DLC account; use public DLAMI with inf1 support instead
 @pytest.mark.parametrize("ec2_instance_ami", [test_utils.UL20_PT_NEURON_US_WEST_2], indirect=True)
 def test_ec2_tensorflow_inference_neuronx(tensorflow_inference_neuronx, ec2_connection, region):
@@ -184,7 +190,6 @@ def run_ec2_tensorflow_inference(
             train_mnist_model(serving_folder_path, ec2_connection)
             sleep(10)
         ec2_connection.run(f"$(aws ecr get-login --no-include-email --region {region})", hide=True)
-        LOGGER.info(docker_run_cmd)
         ec2_connection.run(docker_run_cmd, hide=True)
         sleep(20)
         if is_neuron and str(framework_version).startswith(TENSORFLOW2_VERSION):
@@ -237,7 +242,8 @@ def host_setup_for_tensorflow_inference(
         ec2_connection.run(f"pip install --no-cache-dir -U tensorflow-cpu-aws", hide=True)
         ec2_connection.run(
             (
-                f"pip install --no-dependencies --no-cache-dir tensorflow-serving-api=={framework_version}"
+                f"pip install --no-dependencies --no-cache-dir "
+                f"'tensorflow-serving-api=={framework_version}' 'protobuf>=3.20,<3.21'"
             ),
             hide=True,
         )

@@ -1,34 +1,34 @@
 ---
 release_images:
   1:
-    framework: "pytorch"
-    version: "2.0.0"
+    framework: "tensorflow"
+    version: "2.9.3"
+    customer_type: "sagemaker"
     arch_type: "x86"
-    customer_type: "ec2"
     inference:
-      device_types: [ "gpu" ]
-      python_versions: [ "py310" ]
+      device_types: ["cpu", "gpu"]
+      python_versions: ["py39"]
       os_version: "ubuntu20.04"
-      cuda_version: "cu118"
+      cuda_version: "cu112"
       example: False
       disable_sm_tag: False
       force_release: False
   2:
-    framework: "pytorch"
-    version: "2.0.0"
+    framework: "tensorflow"
+    version: "2.9.3"
+    customer_type: "ec2"
     arch_type: "x86"
-    customer_type: "sagemaker"
     inference:
-      device_types: [ "gpu" ]
-      python_versions: [ "py310" ]
+      device_types: ["cpu", "gpu"]
+      python_versions: ["py39"]
       os_version: "ubuntu20.04"
-      cuda_version: "cu118"
+      cuda_version: "cu112"
       example: False
       disable_sm_tag: False
       force_release: False
   3:
     framework: "tensorflow"
-    version: "2.11.1"
+    version: "2.10.1"
     customer_type: "ec2"
     arch_type: "x86"
     inference:
@@ -41,7 +41,7 @@ release_images:
       force_release: False
   4:
     framework: "tensorflow"
-    version: "2.11.1"
+    version: "2.10.1"
     customer_type: "sagemaker"
     arch_type: "x86"
     inference:
