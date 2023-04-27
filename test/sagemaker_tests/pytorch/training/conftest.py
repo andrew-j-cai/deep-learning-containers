@@ -167,7 +167,7 @@ def pytest_collection_modifyitems(session, config, items):
 NIGHTLY_FIXTURES = {
     "feature_smppy_present": {
         NightlyFeatureLabel.AWS_FRAMEWORK_INSTALLED.value,
-        NightlyFeatureLabel.AWS_SMPPY_INSTALLED.value
+        NightlyFeatureLabel.AWS_SMPPY_INSTALLED.value,
     },
     "feature_smdebug_present": {
         NightlyFeatureLabel.AWS_FRAMEWORK_INSTALLED.value,
@@ -187,6 +187,7 @@ NIGHTLY_FIXTURES = {
 @pytest.fixture(scope="session")
 def feature_smppy_present():
     pass
+
 
 @pytest.fixture(scope="session")
 def feature_smdebug_present():
