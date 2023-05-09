@@ -166,15 +166,13 @@ def py_version():
 
 
 @pytest.fixture()
-def processor():
-    if "TEST_PROCESSORS" in os.environ:
-        return os.environ["TEST_PROCESSORS"].split(",")
-    return None
+def processor(request):
+    return request.config.getoption("--processor")
 
 
 @pytest.fixture(autouse=True)
-def skip_by_device_type(request, processor):
-    is_gpu = processor == "gpu"
+def skip_by_device_type(request, processor, instance_type):
+    is_gpu = (processor == "gpu") or (instance_type.lstrip("ml.")[0] in ["p", "g"])
     if (request.node.get_closest_marker("skip_gpu") and is_gpu) or (
         request.node.get_closest_marker("skip_cpu") and not is_gpu
     ):

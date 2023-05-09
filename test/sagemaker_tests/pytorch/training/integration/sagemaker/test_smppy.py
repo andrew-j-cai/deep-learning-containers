@@ -12,15 +12,15 @@
 # permissions and limitations under the License.
 from __future__ import absolute_import
 
-import boto3
 import os
 import time
 
+import boto3
 import pytest
 from sagemaker import utils
 from sagemaker.debugger import ProfilerConfig, SMProfile
 
-from ...integration import training_dir, smppy_mnist_script, DEFAULT_TIMEOUT
+from ...integration import DEFAULT_TIMEOUT, smppy_mnist_script, training_dir
 from ...integration.sagemaker.timeout import timeout
 from . import invoke_pytorch_estimator
 from .test_pytorchddp import validate_or_skip_pytorchddp
@@ -38,7 +38,7 @@ def test_training_smppy(framework_version, ecr_image, sagemaker_regions):
     with timeout(minutes=DEFAULT_TIMEOUT):
         estimator_parameters = {
             "entry_point": smppy_mnist_script,
-            "role": "arn:aws:iam::920076894685:role/SageMakerRole",
+            "role": "SageMakerRole",
             "instance_count": 1,
             "instance_type": INSTANCE_TYPE,
             "framework_version": framework_version,
@@ -73,7 +73,7 @@ def test_training_smppy_distributed(framework_version, ecr_image, sagemaker_regi
         distribution = {"pytorchddp": {"enabled": True}}
         estimator_parameters = {
             "entry_point": smppy_mnist_script,
-            "role": "arn:aws:iam::920076894685:role/SageMakerRole",
+            "role": "SageMakerRole",
             "instance_count": 2,
             "instance_type": INSTANCE_TYPE,
             "framework_version": framework_version,
@@ -110,7 +110,6 @@ def _check_and_cleanup_s3_output(estimator, wait_time):
     for file in postproc_contents:
         assert file.get("Size") > 0
 
-    return
     all_contents = s3.list_objects_v2(
         Bucket=bucket, Prefix=os.path.join(estimator.latest_training_job.name, "")
     ).get("Contents")

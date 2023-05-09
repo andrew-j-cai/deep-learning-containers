@@ -12,21 +12,22 @@
 # language governing permissions and limitations under the License.
 
 # Workaround for https://github.com/pytorch/vision/issues/1938
-from __future__ import print_function, absolute_import
+from __future__ import absolute_import, print_function
+
 from six.moves import urllib
 
 opener = urllib.request.build_opener()
 opener.addheaders = [("User-agent", "Mozilla/5.0")]
 urllib.request.install_opener(opener)
-from packaging.version import Version
-
 import argparse
+import glob
 import logging
 import os
 import sys
 
 import cv2 as cv
 import sagemaker_training.environment
+import smppy
 import torch
 import torch.distributed as dist
 import torch.nn as nn
@@ -34,9 +35,8 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data
 import torch.utils.data.distributed
-
-import smppy
 import torchvision
+from packaging.version import Version
 from torchvision import datasets, transforms
 
 # from torchvision 0.9.1, 2 candidate mirror website links will be added before "resources" items automatically
@@ -160,6 +160,9 @@ def train(args):
 
     optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
+    # for SM local mode
+    os.makedirs("/opt/ml/output/profiler/framework", exist_ok=True)
+
     smp = smppy.SMProfiler.instance()
     config = smppy.Config()
     config.profiler = {
@@ -220,14 +223,6 @@ def test(model, test_loader, device):
     )
 
 
-def model_fn(model_dir):
-    logger.info("model_fn")
-    model = torch.nn.DataParallel(Net())
-    with open(os.path.join(model_dir, "model.pth"), "rb") as f:
-        model.load_state_dict(torch.load(f))
-    return model
-
-
 if __name__ == "__main__":
     # test opencv
     print(cv.__version__)
@@ -279,3 +274,8 @@ if __name__ == "__main__":
     parser.add_argument("--num-gpus", type=int, default=env.num_gpus)
 
     train(parser.parse_args())
+
+    smp_files = glob.glob("/opt/ml/output/profiler/framework/*.smpraw")
+    assert len(smp_files) > 0
+    for f in smp_files:
+        assert os.path.getsize(f) > 0
